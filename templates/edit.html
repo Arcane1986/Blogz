@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit {{blog.title}}</h1>
+<br><br><br>
+
+<form action="/edit" method="post">
+<h2><label for="title">Blog Title: <br></label></h2>
+  <input type="text" name="title" value="{{blog.title}}" size="50">
+  <br><br><br>
+<h2><label for="body">Blog Body: <br></label></h2>
+  <textarea name="body" id="" cols="75" rows="15">{{blog.body}}</textarea>
+  <br><br><br>
+  <input type="hidden" name='id' value={{blog.blog_id}}>
+  <input type="submit" value="Update">
+</form>
+
+{% endblock %}

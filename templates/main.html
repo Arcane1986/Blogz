@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if error != None %}
+<h2 class="error">{{error}}</h2>
+{% endif %}
+<br>
+<br>
+<br>
+<h1>Build a Blog</h1>
+{% for blog in blogs %}
+<br><br><br>
+<h2><a href="/blog?id={{blog.blog_id}}">{{blog.title}}</a>  
+ {% if request.path == "/mypage" %} 
+ <a href='/edit?id={{blog.blog_id}}'><input type="submit" value="Edit" ></a>
+{% endif %}
+</h2>
+<br><br>
+<p>{{blog.body}}</p>
+<br><br><br>
+Created at {{blog.created_at}} by {{blog.user.username}}
+<br><br><br>
+{% endfor %}
+
+{% endblock %}
