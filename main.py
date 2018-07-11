@@ -2,6 +2,7 @@ from flask import Flask,render_template,request,redirect,session,flash
 from flask_sqlalchemy import SQLAlchemy
 from config import username,port,password,host,database,secret_key
 from datetime import datetime
+from extra import make_pw_hash,check_pw_hash
 
 app=Flask(__name__)
 app.config['DEBUG']=True
@@ -30,13 +31,13 @@ class Blog(db.Model):
 class User(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   username = db.Column(db.String(20), )
-  password = db.Column(db.String(20))
+  pw_hash = db.Column(db.String(120))
   email = db.Column(db.String(40))
   blogs = db.relationship("Blog", backref = 'user')
 
-  def __init__(self,username,password,email):
+  def __init__(self,username,pw_hash,email):
     self.username = username
-    self.password = password
+    self.pw_hash = pw_hash
     self.email = email
 
 @app.before_request
@@ -55,7 +56,7 @@ def login():
       if username == "" or password == "":
         flash('Username and/or password can not be blank','error')
         return render_template("login.html",username=username,session=session,errorimg="https://media2.giphy.com/media/147dUv9HLZy5Ak/giphy.gif")
-      elif current_user and current_user.password == password:
+      elif current_user and check_pw_hash(password,current_user.pw_hash):
         session['username']=username
         flash(f'Welcome {username}','welcome')
         return redirect("/mypage?errorimg=https://media3.giphy.com/media/ktAQNsUfigR1K/200w.webp")    
@@ -76,7 +77,7 @@ def signup():
     current_user = User.query.filter_by(username = username).first()
     email = request.form['e-mail']
     if not current_user and password == verified_pw and '@' in email and email.count('.') == 1 and password != "":
-      new_user = User(username,password,email)
+      new_user = User(username,make_pw_hash(password),email)
       db.session.add(new_user)
       db.session.commit()
       session['username']=username
